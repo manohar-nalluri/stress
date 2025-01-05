@@ -5,9 +5,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import  Chart  from "./Chart";
 import { useState } from "react";
-const HomePage=({submit,setLoading})=>{
+const HomePage=({submit,setLoading,data})=>{
   const [eda,setEda]=useState(0)
   const [hr,setHr]=useState(0)
+  const [text,setText]=useState("")
+  const [image,setImage]=useState(null)
   const {toast}=useToast()
   const handleSubmit=()=>{
     if(typeof eda!=='number' || typeof hr!=='number'){
@@ -23,7 +25,7 @@ const HomePage=({submit,setLoading})=>{
           description: "Data sent to model for analysis",
     })
     setLoading(true)
-    submit.mutate({eda,hr})
+    submit.mutate({eda,hr,text,image})
   }
   return (
    
@@ -39,11 +41,11 @@ const HomePage=({submit,setLoading})=>{
     </div>
     <div className="grid w-full mt-2 max-w-sm items-center gap-1.5">
       <Label htmlFor="pic">Picture</Label>
-      <Input type="file" id="pic" placeholder="file" />
+      <Input type="file" id="pic" placeholder="file" onChange={(e)=>setImage(e.target.files[0])} />
     </div>
     <div className="grid w-full mt-2 gap-1.5">
       <Label htmlFor="message-2">How is your day</Label>
-      <Textarea placeholder="Type your message here." id="message-2" />
+      <Textarea placeholder="Type your message here." id="message-2" onChange={(e)=>setText(e.target.value)} value={text}/>
       <p className="text-sm text-muted-foreground">
         Based on your day/content the stress levels are assessed.
       </p>
@@ -55,7 +57,7 @@ const HomePage=({submit,setLoading})=>{
     </ShimmerButton>
   </div>
   <div className="flex flex-col items-center justify-center">
-    <Chart />
+    <Chart data={data}/>
   </div>
 </div>
   )

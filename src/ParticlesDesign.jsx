@@ -22,16 +22,41 @@ export function ParticlesDemo() {
   },[])
   const mutate=useMutation({
     mutationFn:async(data)=>{
-      const response=await axios.post("http://localhost:8000/predict",{data})
+      const formData = new FormData();
+      const {image}=data
+      delete data.image
+      formData.append('data', JSON.stringify(data));
+      if (image) {
+        formData.append('image', image);
+      }
+      const response=await axios.post("http://localhost:8000/predict",formData,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       return response
     },
     onSuccess:(data)=>{
       setLoading(false)
+      setData(data.data.prediction)
+      const filling=["var(--color-chrome)","var(--color-safari)","var(--color-firefox)","var(--color-edge)","var(--color-other)"]
+      const item=JSON.parse(localStorage.getItem("chart")) || []
+      const count=item.length
+      item.push({browser:String(count),stress:parseInt(data.data.prediction*100),fill:filling[Math.floor(Math.random()*5)]})
+      localStorage.setItem("chart",JSON.stringify(item))
+      if(data.data.prediction>0.7){
+        toast({
+          title: "Uh oh! Stress is more.",
+          description: "Take some rest.",
+          variant: "destructive" 
+        })
+      }else{
       toast({
         Title:"successfully fetched data",
-        discription:"fetched the data"
+        discription:"Stress is in control"
       })
       handleConfetti()
+      }
     },
     onError:(error)=>{
       setLoading(false)
@@ -75,7 +100,7 @@ export function ParticlesDemo() {
         />
       </span>
       <div className="flex-grow flex items-center justify-center">
-        {loading ?<LoadingScreen/>: <HomePage submit={mutate} setLoading={setLoading}/>}
+        {loading ?<LoadingScreen/>: <HomePage submit={mutate} setLoading={setLoading} data={data}/>}
       </div>
       <Particles
         className="absolute inset-0 z-0"

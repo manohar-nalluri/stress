@@ -15,40 +15,46 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
-]
+import { useEffect, useState } from "react";
 const chartConfig = {
   visitors: {
     label: "Visitors",
     color: "hsl(var(--chart-2))",
   },
   chrome: {
-    label: "Chrome",
+    label: "0",
     color: "hsl(var(--chart-1))",
   },
   safari: {
-    label: "Safari",
+    label: "1",
     color: "hsl(var(--chart-2))",
   },
   firefox: {
-    label: "Firefox",
+    label: "2",
     color: "hsl(var(--chart-3))",
   },
   edge: {
-    label: "Edge",
+    label: "3",
     color: "hsl(var(--chart-4))",
   },
   other: {
-    label: "Other",
+    label: "4",
     color: "hsl(var(--chart-5))",
   },
 } 
-const Chart=()=> {
+const Chart=({data})=> {
+  const [chartData,setChartData]=useState([{browser: "0", stress: 89, fill: "var(--color-chrome)"}])
+  useEffect(()=>{
+     const data2 =JSON.parse(localStorage.getItem("chart")||'[]') || [
+  { browser: "0", stress: 50, fill: "var(--color-chrome)" },
+  { browser: "1", stress: 50,fill: "var(--color-safari)" },
+  { browser: "2", stress: 50,fill: "var(--color-firefox)" },
+  { browser: "3",  stress: 50, fill: "var(--color-edge)" },
+  { browser: "4", stress: 50,fill: "var(--color-other)" },
+]
+    setChartData(data2)
+    console.log('this is the chart data',data2)
+  },[data])
   const theme = useTheme();
   return (
     <ShineBorder
@@ -64,7 +70,7 @@ const Chart=()=> {
         <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={ chartData}
             margin={{
               top: 24,
               left: 24,
@@ -77,13 +83,13 @@ const Chart=()=> {
               content={
                 <ChartTooltipContent
                   indicator="line"
-                  nameKey="visitors"
+                  nameKey="stress"
                   hideLabel
                 />
               }
             />
             <Line
-              dataKey="visitors"
+              dataKey="stress"
               type="natural"
               stroke="var(--color-visitors)"
               strokeWidth={2}
@@ -103,13 +109,19 @@ const Chart=()=> {
           </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Stress has increased by 4% <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Shown based on the previous resulst
-        </div>
+        <CardFooter className="flex-col items-start gap-2 text-sm">
+          <div className="flex gap-2 font-medium leading-none">
+            {chartData ? (
+              <span>
+                Stress has increased by 4% <TrendingUp className="h-4 w-4" />
+              </span>
+            ) : (
+                "Check Stress to show the trend"
+              )}
+          </div>
+          <div className="leading-none text-muted-foreground">
+            {data && "Shown based on the previous resulst"}
+          </div>
       </CardFooter>
 </Card>
       </ShineBorder> 
